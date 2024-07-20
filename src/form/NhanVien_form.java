@@ -6,6 +6,7 @@ import java.awt.image.BufferedImage;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import javax.imageio.ImageIO;
@@ -25,18 +26,20 @@ public class NhanVien_form extends javax.swing.JInternalFrame {
 
     String strHinhAnh = null;
     String pathFile = null;
-    int index = -1;
+    private int index = -1;
     private DefaultTableModel model_NVMoi = new DefaultTableModel();
     private DefaultTableModel model_NVCu = new DefaultTableModel();
     private DefaultComboBoxModel dcbm_CV = new DefaultComboBoxModel();
     NhanVien_Repository repo_nv = new NhanVien_Repository();
     ChucVu_Repository repo_cv = new ChucVu_Repository();
+    private Integer Selected_TKCV = 0;
 
     public NhanVien_form() {
         initComponents();
         cauHinh_form();
         goiHam_Fill();
         updateStatus();
+
     }
 
     private void goiHam_Fill() {
@@ -50,7 +53,8 @@ public class NhanVien_form extends javax.swing.JInternalFrame {
 
     private void fillToTable_NVMoi(ArrayList<NhanVien_Response> listnv) {
         model_NVMoi.setRowCount(0);
-        listnv.forEach(s -> model_NVMoi.addRow(new Object[]{
+        AtomicInteger index = new AtomicInteger(1);
+        listnv.forEach(s -> model_NVMoi.addRow(new Object[]{index.getAndIncrement(),
             s.getMaNhanVien(), s.getHoTen(), s.isGioiTinh() == false ? "Nam" : "Nữ",
             s.getNgaySinh(), s.getDiaChi(),
             s.getEmail(), s.getSDT(), s.getChucVu()
@@ -98,54 +102,56 @@ public class NhanVien_form extends javax.swing.JInternalFrame {
         // Kiểm tra xem số điện thoại có khớp với biểu thức chính quy không
         return matcher.matches();
     }
-    public boolean isValid_matKhau(){
+
+    public boolean isValid_matKhau() {
         if (txtMatKhau.getText().length() < 8) {
-            MsgBox.showMessage(this,"Mật khẩu phải có ít nhất 8 ký tự.");
-            return false ;
+            MsgBox.showMessage(this, "Mật khẩu phải có ít nhất 8 ký tự.");
+            return false;
         }
 
         // Kiểm tra chữ hoa
         if (!txtMatKhau.getText().matches(".*[A-Z].*")) {
-            MsgBox.showMessage(this,"Mật khẩu phải chứa ít nhất một chữ hoa.");
+            MsgBox.showMessage(this, "Mật khẩu phải chứa ít nhất một chữ hoa.");
             return false;
         }
 
         // Kiểm tra chữ thường
         if (!txtMatKhau.getText().matches(".*[a-z].*")) {
-             MsgBox.showMessage(this,"Mật khẩu phải chứa ít nhất một chữ thường.");
+            MsgBox.showMessage(this, "Mật khẩu phải chứa ít nhất một chữ thường.");
             return false;
         }
 
         // Kiểm tra số
         if (!txtMatKhau.getText().matches(".*\\d.*")) {
-             MsgBox.showMessage(this,"Mật khẩu phải chứa ít nhất một số.");
+            MsgBox.showMessage(this, "Mật khẩu phải chứa ít nhất một số.");
             return false;
         }
 
         // Kiểm tra ký tự đặc biệt
         if (!txtMatKhau.getText().matches(".*[!@#$%^&*(),.?\":{}|<>].*")) {
-            MsgBox.showMessage(this,"Mật khẩu phải chứa ít nhất một ký tự đặc biệt.");
-            return false ;
+            MsgBox.showMessage(this, "Mật khẩu phải chứa ít nhất một ký tự đặc biệt.");
+            return false;
         }
-        return true; 
+        return true;
     }
-    public boolean isValid_ChiTietEmail(){
+
+    public boolean isValid_ChiTietEmail() {
         int atCount = txtEmail.getText().length() - txtEmail.getText().replace("@", "").length();
         if (atCount != 1) {
-            MsgBox.showMessage(this,"Email phải và chỉ chứa một ký tự '@'.");
-            return false ;
+            MsgBox.showMessage(this, "Email phải và chỉ chứa một ký tự '@'.");
+            return false;
         }
 
         // Tách phần tên người dùng và tên miền
         String[] parts = txtEmail.getText().split("@");
         if (parts.length < 2) {
-            MsgBox.showMessage(this,"Email phải chứa phần tên miền sau ký tự '@'.");
+            MsgBox.showMessage(this, "Email phải chứa phần tên miền sau ký tự '@'.");
             return false;
         }
 
         // Kiểm tra phần tên người dùng
         if (parts[0].isEmpty()) {
-            MsgBox.showMessage(this,"Email phải chứa phần tên người dùng trước ký tự '@'.");
+            MsgBox.showMessage(this, "Email phải chứa phần tên người dùng trước ký tự '@'.");
             return false;
         }
 
@@ -158,22 +164,21 @@ public class NhanVien_form extends javax.swing.JInternalFrame {
 
         // Kiểm tra tên miền chứa dấu chấm
         if (!domainPart.contains(".")) {
-            MsgBox.showMessage(this,"Email phải chứa dấu chấm (.) trong phần tên miền.");
+            MsgBox.showMessage(this, "Email phải chứa dấu chấm (.) trong phần tên miền.");
             return false;
         }
 
         // Kiểm tra độ dài phần tên miền
         String[] domainParts = domainPart.split("\\.");
         if (domainParts[domainParts.length - 1].length() < 2) {
-            MsgBox.showMessage(this,"Phần tên miền của email phải có ít nhất hai ký tự.");
+            MsgBox.showMessage(this, "Phần tên miền của email phải có ít nhất hai ký tự.");
             return false;
         }
-        return true; 
+        return true;
     }
 
     private boolean Validate_form_NV() {
-        
-             
+
         if (txtMaNV.getText().isEmpty()) {
             MsgBox.showMessage(this, "Vui lòng nhập mã NV");
             return false;
@@ -186,45 +191,37 @@ public class NhanVien_form extends javax.swing.JInternalFrame {
         } else if (txtEmail.getText().isEmpty()) {
             MsgBox.showMessage(this, "Vui lòng nhập Email");
             return false;
-        }
-        else if(!isValid_ChiTietEmail()){
-            return false; 
-        }
-        else if (txtSoDienThoai.getText().isEmpty()) {
+        } else if (!isValid_ChiTietEmail()) {
+            return false;
+        } else if (txtSoDienThoai.getText().isEmpty()) {
             MsgBox.showMessage(this, "Vui lòng nhập mã SĐT");
             return false;
         } else if (JDateNgaySinh.getDate() == null) {
             MsgBox.showMessage(this, "Vui lòng chọn Ngày Sinh");
             return false;
         }
-        if(JDateNgaySinh.getDate().after(new Date())){
-            MsgBox.showMessage(this,"Ngày Sinh Không Được lớn hơn ngày hiện tại");
-            return false ;
-        }
-        else if (txtTaiKhoan.getText().isEmpty()) {
+        if (JDateNgaySinh.getDate().after(new Date())) {
+            MsgBox.showMessage(this, "Ngày Sinh Không Được lớn hơn ngày hiện tại");
+            return false;
+        } else if (txtTaiKhoan.getText().isEmpty()) {
             MsgBox.showMessage(this, "Vui lòng nhập nhập Tài Khoản");
             return false;
         } else if (txtMatKhau.getText().isEmpty()) {
             MsgBox.showMessage(this, "Vui lòng nhập MK");
             return false;
-        }
-        else if(!isValid_matKhau()){
-            return false; 
-        }
-        else if (txtXacNhanMatKhau.getText().isEmpty()) {
+        } else if (!isValid_matKhau()) {
+            return false;
+        } else if (txtXacNhanMatKhau.getText().isEmpty()) {
             MsgBox.showMessage(this, "Vui lòng Xác NhậnMK");
             return false;
         } else if (!(txtMatKhau.getText().equals(txtXacNhanMatKhau.getText()))) {
             MsgBox.showMessage(this, "Xác Nhận Mật khẩu K Chính Xác");
             return false;
-        }
-
-        
-        else if (!isValidPhoneNumber(txtSoDienThoai.getText())) {
+        } else if (!isValidPhoneNumber(txtSoDienThoai.getText())) {
             MsgBox.showMessage(this, "SĐT phải bắt  đầu là 0 và phải đủ 10 hoặc 11 số");
             return false;
         }
-        
+
         try {
             Integer.parseInt(txtSoDienThoai.getText());
         } catch (Exception e) {
@@ -271,6 +268,8 @@ public class NhanVien_form extends javax.swing.JInternalFrame {
         btnphai_phai = new javax.swing.JButton();
         btnTrai = new javax.swing.JButton();
         btnPhai = new javax.swing.JButton();
+        cboChucVuTimKiem = new javax.swing.JComboBox<>();
+        jLabel26 = new javax.swing.JLabel();
         JPanel_NhanVienNghiViec = new javax.swing.JPanel();
         tableNVCu = new javax.swing.JScrollPane();
         tblNhanVienCu = new javax.swing.JTable();
@@ -335,11 +334,11 @@ public class NhanVien_form extends javax.swing.JInternalFrame {
 
             },
             new String [] {
-                "Mã NV", "Họ Tên", "Giới Tính", "Ngày Sinh", "Địa Chỉ", "Email", "SĐT", "Chức Vụ"
+                "STT", "Mã NV", "Họ Tên", "Giới Tính", "Ngày Sinh", "Địa Chỉ", "Email", "SĐT", "Chức Vụ"
             }
         ) {
             boolean[] canEdit = new boolean [] {
-                false, false, false, false, false, false, false, false
+                true, false, false, false, false, false, false, false, false
             };
 
             public boolean isCellEditable(int rowIndex, int columnIndex) {
@@ -356,17 +355,17 @@ public class NhanVien_form extends javax.swing.JInternalFrame {
         });
         jScrollPane3.setViewportView(tblNhanVienMoi);
 
-        JPanel_NhanVienDangLam.add(jScrollPane3, new org.netbeans.lib.awtextra.AbsoluteConstraints(9, 110, 690, 286));
+        JPanel_NhanVienDangLam.add(jScrollPane3, new org.netbeans.lib.awtextra.AbsoluteConstraints(9, 110, 680, 286));
 
         lblvien.setBackground(new java.awt.Color(153, 204, 255));
         lblvien.setFont(new java.awt.Font("Tahoma", 0, 12)); // NOI18N
         lblvien.setText("____________________________________________________________________________");
-        JPanel_NhanVienDangLam.add(lblvien, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 50, 495, 30));
+        JPanel_NhanVienDangLam.add(lblvien, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 50, 280, 30));
 
         jLabel22.setBackground(new java.awt.Color(153, 204, 255));
         jLabel22.setFont(new java.awt.Font("Tahoma", 1, 12)); // NOI18N
-        jLabel22.setText("Tìm Kiếm :");
-        JPanel_NhanVienDangLam.add(jLabel22, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 10, 69, 20));
+        jLabel22.setText("Lọc Chức Vụ :");
+        JPanel_NhanVienDangLam.add(jLabel22, new org.netbeans.lib.awtextra.AbsoluteConstraints(340, 10, 90, 20));
 
         txtTimKiemNVMoi.setFont(txtTimKiemNVMoi.getFont());
         txtTimKiemNVMoi.setBorder(null);
@@ -376,7 +375,7 @@ public class NhanVien_form extends javax.swing.JInternalFrame {
                 txtTimKiemNVMoiKeyReleased(evt);
             }
         });
-        JPanel_NhanVienDangLam.add(txtTimKiemNVMoi, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 40, 490, 30));
+        JPanel_NhanVienDangLam.add(txtTimKiemNVMoi, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 40, 280, 30));
 
         btnXoaNV.setBackground(new java.awt.Color(153, 204, 255));
         btnXoaNV.setIcon(new javax.swing.ImageIcon(getClass().getResource("/icon/Trash.png"))); // NOI18N
@@ -428,6 +427,19 @@ public class NhanVien_form extends javax.swing.JInternalFrame {
         });
         JPanel_NhanVienDangLam.add(btnPhai, new org.netbeans.lib.awtextra.AbsoluteConstraints(360, 440, 60, 40));
 
+        cboChucVuTimKiem.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "ALL\t", "Nhân Viên", "Trưởng Phòng" }));
+        cboChucVuTimKiem.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                cboChucVuTimKiemActionPerformed(evt);
+            }
+        });
+        JPanel_NhanVienDangLam.add(cboChucVuTimKiem, new org.netbeans.lib.awtextra.AbsoluteConstraints(340, 50, 130, 30));
+
+        jLabel26.setBackground(new java.awt.Color(153, 204, 255));
+        jLabel26.setFont(new java.awt.Font("Tahoma", 1, 12)); // NOI18N
+        jLabel26.setText("Tìm Kiếm :");
+        JPanel_NhanVienDangLam.add(jLabel26, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 10, 69, 20));
+
         jTabbedNhanVien.addTab("Nhân Viên Đang Làm Việc", JPanel_NhanVienDangLam);
 
         JPanel_NhanVienNghiViec.setBackground(new java.awt.Color(255, 255, 255));
@@ -458,12 +470,12 @@ public class NhanVien_form extends javax.swing.JInternalFrame {
         });
         tableNVCu.setViewportView(tblNhanVienCu);
 
-        JPanel_NhanVienNghiViec.add(tableNVCu, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 110, 690, 286));
+        JPanel_NhanVienNghiViec.add(tableNVCu, new org.netbeans.lib.awtextra.AbsoluteConstraints(10, 110, 670, 286));
 
         jLabel19.setBackground(new java.awt.Color(153, 204, 255));
         jLabel19.setFont(new java.awt.Font("Tahoma", 0, 12)); // NOI18N
         jLabel19.setText("____________________________________________________________________________");
-        JPanel_NhanVienNghiViec.add(jLabel19, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 50, 495, 20));
+        JPanel_NhanVienNghiViec.add(jLabel19, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 50, 280, 20));
 
         txtTimKiemNVCu.setFont(txtTimKiemNVCu.getFont());
         txtTimKiemNVCu.setBorder(null);
@@ -479,7 +491,7 @@ public class NhanVien_form extends javax.swing.JInternalFrame {
                 txtTimKiemNVCuKeyReleased(evt);
             }
         });
-        JPanel_NhanVienNghiViec.add(txtTimKiemNVCu, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 40, 480, 20));
+        JPanel_NhanVienNghiViec.add(txtTimKiemNVCu, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 40, 280, 20));
 
         jLabel20.setBackground(new java.awt.Color(153, 204, 255));
         jLabel20.setFont(new java.awt.Font("Tahoma", 1, 12)); // NOI18N
@@ -601,7 +613,7 @@ public class NhanVien_form extends javax.swing.JInternalFrame {
                 txtDiaChiActionPerformed(evt);
             }
         });
-        JPanelQLNV.add(txtDiaChi, new org.netbeans.lib.awtextra.AbsoluteConstraints(270, 410, 190, 30));
+        JPanelQLNV.add(txtDiaChi, new org.netbeans.lib.awtextra.AbsoluteConstraints(270, 420, 190, 20));
 
         txtHoTen.setBorder(null);
         JPanelQLNV.add(txtHoTen, new org.netbeans.lib.awtextra.AbsoluteConstraints(30, 360, 190, 20));
@@ -772,6 +784,7 @@ public class NhanVien_form extends javax.swing.JInternalFrame {
 
 
     private void btnXoaNVActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnXoaNVActionPerformed
+
         if (!txtTimKiemNVMoi.getText().isEmpty()) {
             Click_NV_Moi_Cu(tblNhanVienMoi.getSelectedRow(), repo_nv.getAll_NV_Moi());
             repo_nv.Update_TrangThaiNVCu_Moi(Xoa_NVMoi_Cu_TimKiem(
@@ -781,14 +794,39 @@ public class NhanVien_form extends javax.swing.JInternalFrame {
             txtTimKiemNVMoi.setText("");
             ClearNV();
             return;
+        } else {
+            if (Selected_TKCV == 0) {
+                repo_nv.Update_TrangThaiNVCu_Moi(Xoa_NVMoi_Cu_TimKiem(tblNhanVienMoi.getSelectedRow(), repo_nv.getAll_NV_Moi()), 1);
+                fillToTable_NVCu(repo_nv.getAll_NV_Cu());
+                fillToTable_NVMoi(repo_nv.getAll_NV_Moi());
+                ClearNV();
+                return;
+            } else if (Selected_TKCV == 1) {
+                Click_NV_Moi_Cu(tblNhanVienMoi.getSelectedRow(), repo_nv.getALL_ChucVu(1));
+
+                repo_nv.Update_TrangThaiNVCu_Moi(Xoa_NVMoi_Cu_TimKiem(
+                        tblNhanVienMoi.getSelectedRow(),
+                        repo_nv.getALL_ChucVu(1)), 1);
+
+                fillToTable_NVCu(repo_nv.getAll_NV_Cu());
+                fillToTable_NVMoi(repo_nv.getALL_ChucVu(1));
+                return;
+            } else if (Selected_TKCV == 2) {
+                Click_NV_Moi_Cu(tblNhanVienMoi.getSelectedRow(), repo_nv.getALL_ChucVu(2));
+
+                repo_nv.Update_TrangThaiNVCu_Moi(Xoa_NVMoi_Cu_TimKiem(
+                        tblNhanVienMoi.getSelectedRow(),
+                        repo_nv.getALL_ChucVu(2)), 1);
+                fillToTable_NVCu(repo_nv.getAll_NV_Cu());
+
+                fillToTable_NVMoi(repo_nv.getALL_ChucVu(2));
+                return;
+            }
         }
-        repo_nv.Update_TrangThaiNVCu_Moi(Xoa_NVMoi_Cu_TimKiem(tblNhanVienMoi.getSelectedRow(), repo_nv.getAll_NV_Moi()), 1);
-        fillToTable_NVCu(repo_nv.getAll_NV_Cu());
-        fillToTable_NVMoi(repo_nv.getAll_NV_Moi());
-        ClearNV();
+
 
     }//GEN-LAST:event_btnXoaNVActionPerformed
-    
+
     private Integer lay_ChucVu(ArrayList<ChucVu> list) {
         for (ChucVu cv : list) {
             if (cboChucVu.getSelectedItem().equals(cv.getChucVu())) {
@@ -848,12 +886,146 @@ public class NhanVien_form extends javax.swing.JInternalFrame {
 
     }
     private void btnSuaNVActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnSuaNVActionPerformed
-        boolean kt = true, kt_TimKiem = true;
+        boolean kt = true, kt_TimKiem = true, kt_loc1 = true, kt_loc2 = true;
         NhanVien_Response nv_TimKiem = repo_nv.search(txtTimKiemNVMoi.getText(), 0).get(index);
         NhanVien_Response nv_ = repo_nv.getAll_NV_Moi().get(index);
 
-        // kt nhân viên tìm kiếm 
-        if (!txtTimKiemNVMoi.getText().isEmpty()) {
+        
+        // kt nhân viênlọc
+        if (txtTimKiemNVMoi.getText().isEmpty()) {
+            if (Selected_TKCV == 0) {
+                //  kiểm tra nv 
+                for (NhanVien_Response nv : repo_nv.getAll_NV_Moi_Cu()) {
+                    // kt mã
+                    if (nv.getMaNhanVien().equalsIgnoreCase(txtMaNV.getText()) && !nv_.getMaNhanVien().equals(txtMaNV.getText())) {
+                        MsgBox.showMessage(this, "Mã NV đã tồn tại");
+                        kt = false;
+                        break;
+                    }
+                    // kt tk mk
+                    if ((txtTaiKhoan.getText().equals(nv.getTaiKhoan())
+                            && txtMatKhau.getText().equals(nv.getMatKhau()))
+                            && !(txtTaiKhoan.getText().equals(nv_.getTaiKhoan())
+                            && txtMatKhau.getText().equals(nv_.getMatKhau()))) {
+                        MsgBox.showMessage(this, "Tài Khoản Đã Tồn Tại");
+                        kt = false;
+                        break;
+                    }
+                }
+                if (kt) {
+                    // nhân viên thường 
+                    if (Validate_form_NV()) {
+                        repo_nv.Update_ThongTin_NV(_add_ThongTin_NV(),
+                                _sua_Theo_ID_NV(tblNhanVienMoi.getSelectedRow(), repo_nv.getAll_NV_Moi()));
+
+                        fillToTable_NVMoi(repo_nv.getAll_NV_Moi());
+
+                        pathFile = null;
+                        btnSuaNV.setEnabled(false);
+                        btnXoaNV.setEnabled(false);
+
+                        MsgBox.showMessage(this, "Update Thành Công");
+                        return;
+                    }
+                }
+
+            }// het chức vụ all
+            else if (Selected_TKCV == 1) {
+                NhanVien_Response nv_Loc1;
+                try {
+                    nv_Loc1 = repo_nv.getALL_ChucVu(1).get(index);
+                } catch (Exception e) {
+                    return;
+                }
+                for (NhanVien_Response nv : repo_nv.getAll_NV_Moi_Cu()) {
+
+                    if (nv.getMaNhanVien().equalsIgnoreCase(txtMaNV.getText())
+                            && !nv_Loc1.getMaNhanVien().equals(txtMaNV.getText())) {
+                        MsgBox.showMessage(this, "Mã NV đã tồn tại");
+                        kt_loc1 = false;
+                        return;
+                    }
+
+                    if ((txtTaiKhoan.getText().equals(nv.getTaiKhoan())
+                            && txtMatKhau.getText().equals(nv.getMatKhau()))
+                            && !(txtTaiKhoan.getText().equals(nv_Loc1.getTaiKhoan())
+                            && txtMatKhau.getText().equals(nv_Loc1.getMatKhau()))) {
+                        MsgBox.showMessage(this, "Tài Khoản Đã Tồn Tại");
+                        kt_loc1 = false;
+                        return;
+                    }
+
+                }
+                // update kt loc nv
+                if (kt_loc1) {
+                    if (Validate_form_NV()) {
+                        repo_nv.Update_ThongTin_NV(_add_ThongTin_NV(),
+                                _sua_Theo_ID_NV(tblNhanVienMoi.getSelectedRow(), repo_nv.getALL_ChucVu(1)));
+                        fillToTable_NVMoi(repo_nv.getALL_ChucVu(1));
+                        pathFile = null;
+                        btnSuaNV.setEnabled(false);
+                        btnXoaNV.setEnabled(false);
+                        MsgBox.showMessage(this, "Update Thành Công");
+                        return;
+                    }
+                }// hết lọc nv 1
+
+            } //
+            else if (Selected_TKCV == 2) {
+                NhanVien_Response nv_Loc2;
+                try {
+                    nv_Loc2 = repo_nv.getALL_ChucVu(2).get(index);
+                } catch (Exception e) {
+                    return;
+                }
+                for (NhanVien_Response nv : repo_nv.getAll_NV_Moi_Cu()) {
+
+                    if (nv.getMaNhanVien().equalsIgnoreCase(txtMaNV.getText())
+                            && !nv_Loc2.getMaNhanVien().equals(txtMaNV.getText())) {
+                        MsgBox.showMessage(this, "Mã NV đã tồn tại");
+
+                        kt_loc2 = false;
+                        return;
+
+                    }
+
+                    if ((txtTaiKhoan.getText().equals(nv.getTaiKhoan())
+                            && txtMatKhau.getText().equals(nv.getMatKhau()))
+                            && !(txtTaiKhoan.getText().equals(nv_Loc2.getTaiKhoan())
+                            && txtMatKhau.getText().equals(nv_Loc2.getMatKhau()))) {
+                        MsgBox.showMessage(this, "Tài Khoản Đã Tồn Tại");
+                        kt_loc2 = false;
+
+                        return;
+                    }
+
+                }
+
+                // update kt loc nv2
+                if (kt_loc2) {
+                    if (Validate_form_NV()) {
+                        repo_nv.Update_ThongTin_NV(_add_ThongTin_NV(),
+                                _sua_Theo_ID_NV(tblNhanVienMoi.getSelectedRow(), repo_nv.getALL_ChucVu(2)));
+
+                        fillToTable_NVMoi(repo_nv.getALL_ChucVu(2));
+                        pathFile = null;
+                        btnSuaNV.setEnabled(false);
+                        btnXoaNV.setEnabled(false);
+                        MsgBox.showMessage(this, "Update Thành Công");
+                        return;
+                    }
+                }// hết lọc nv 2
+
+            }// hết lọc nv 2
+//        
+//        
+//       
+//        }
+
+        }// end nv ko tìm kiếm  
+        // kt nhân viên tìm kiếm
+        else if (!txtTimKiemNVMoi.getText().isEmpty()) {
+
             for (NhanVien_Response nv : repo_nv.getAll_NV_Moi_Cu()) {
                 if (nv.getMaNhanVien().equalsIgnoreCase(txtMaNV.getText())
                         && !nv_TimKiem.getMaNhanVien().equals(txtMaNV.getText())) {
@@ -864,8 +1036,8 @@ public class NhanVien_form extends javax.swing.JInternalFrame {
 
                 if ((txtTaiKhoan.getText().equals(nv.getTaiKhoan())
                         && txtMatKhau.getText().equals(nv.getMatKhau()))
-                        && !(txtTaiKhoan.getText().equals(nv_.getTaiKhoan())
-                        && txtMatKhau.getText().equals(nv_.getMatKhau()))) {
+                        && !(txtTaiKhoan.getText().equals(nv_TimKiem.getTaiKhoan())
+                        && txtMatKhau.getText().equals(nv_TimKiem.getMatKhau()))) {
                     MsgBox.showMessage(this, "Tài Khoản Đã Tồn Tại");
                     kt_TimKiem = false;
                     break;
@@ -886,40 +1058,9 @@ public class NhanVien_form extends javax.swing.JInternalFrame {
                     return;
                 }
             }
-        } else {
-            //  kiểm tra nv 
-            for (NhanVien_Response nv : repo_nv.getAll_NV_Moi_Cu()) {
-                if (nv.getMaNhanVien().equalsIgnoreCase(txtMaNV.getText()) && !nv_.getMaNhanVien().equals(txtMaNV.getText())) {
-                    MsgBox.showMessage(this, "Mã NV đã tồn tại");
-                    kt = false;
-                    break;
-                }
-                if ((txtTaiKhoan.getText().equals(nv.getTaiKhoan())
-                        && txtMatKhau.getText().equals(nv.getMatKhau()))
-                        && !(txtTaiKhoan.getText().equals(nv_.getTaiKhoan())
-                        && txtMatKhau.getText().equals(nv_.getMatKhau()))) {
-                    MsgBox.showMessage(this, "Tài Khoản Đã Tồn Tại");
-                    kt = false;
-                    break;
-                }
-            }
-            if (kt) {
-                // nhân viên thường 
-                if (Validate_form_NV()) {
-                    repo_nv.Update_ThongTin_NV(_add_ThongTin_NV(),
-                            _sua_Theo_ID_NV(tblNhanVienMoi.getSelectedRow(), repo_nv.getAll_NV_Moi()));
-                    fillToTable_NVMoi(repo_nv.getAll_NV_Moi());
-
-                    pathFile = null;
-                    btnSuaNV.setEnabled(false);
-                    btnXoaNV.setEnabled(false);
-
-                    MsgBox.showMessage(this, "Update Thành Công");
-                    return;
-                }
-            }
-
         }
+
+
     }//GEN-LAST:event_btnSuaNVActionPerformed
     private void ClearNV() {
         txtDiaChi.setText("");
@@ -943,8 +1084,9 @@ public class NhanVien_form extends javax.swing.JInternalFrame {
         btnSuaNV.setEnabled(false);
     }
     private void btnClearNVActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnClearNVActionPerformed
+        cboChucVuTimKiem.setSelectedIndex(0);
         ClearNV();
-        fillToTable_NVMoi(repo_nv.getAll_NV_Moi());
+
         btnXoaNV.setEnabled(false);
         btnKhoiPhucNVCu.setEnabled(false);
     }//GEN-LAST:event_btnClearNVActionPerformed
@@ -984,11 +1126,24 @@ public class NhanVien_form extends javax.swing.JInternalFrame {
         btnXoaNV.setEnabled(true);
         btnThemNV.setEnabled(false);
         btnSuaNV.setEnabled(true);
+
         if (!txtTimKiemNVMoi.getText().isEmpty()) {
+
             Click_NV_Moi_Cu(tblNhanVienMoi.getSelectedRow(), repo_nv.search(txtTimKiemNVMoi.getText(), 0));
             return;
+        } else {
+            if (Selected_TKCV == 0) {
+                Click_NV_Moi_Cu(tblNhanVienMoi.getSelectedRow(), repo_nv.getAll_NV_Moi());
+                return;
+            } else if (Selected_TKCV == 1) {
+                Click_NV_Moi_Cu(tblNhanVienMoi.getSelectedRow(), repo_nv.getALL_ChucVu(1));
+                return;
+            } else if (Selected_TKCV == 2) {
+                Click_NV_Moi_Cu(tblNhanVienMoi.getSelectedRow(), repo_nv.getALL_ChucVu(2));
+                return;
+            }
         }
-        Click_NV_Moi_Cu(tblNhanVienMoi.getSelectedRow(), repo_nv.getAll_NV_Moi());
+
 
     }//GEN-LAST:event_tblNhanVienMoiMouseClicked
 
@@ -997,9 +1152,11 @@ public class NhanVien_form extends javax.swing.JInternalFrame {
         btnThemNV.setEnabled(false);
         btnSuaNV.setEnabled(false);
         if (!txtTimKiemNVCu.getText().isEmpty()) {
+            cboChucVuTimKiem.setSelectedIndex(0);
             Click_NV_Moi_Cu(tblNhanVienCu.getSelectedRow(), repo_nv.search(txtTimKiemNVCu.getText(), 1));
             return;
         }
+        cboChucVuTimKiem.setSelectedIndex(0);
         Click_NV_Moi_Cu(tblNhanVienCu.getSelectedRow(), repo_nv.getAll_NV_Cu());
     }//GEN-LAST:event_tblNhanVienCuMouseClicked
 
@@ -1025,7 +1182,6 @@ public class NhanVien_form extends javax.swing.JInternalFrame {
             lblHinhAnh.setIcon(null);
             pathFile = null;
         }
-        System.out.println(pathFile);
         return pathFile;// file lưu vào csdl 
 
     }
@@ -1099,7 +1255,12 @@ public class NhanVien_form extends javax.swing.JInternalFrame {
     private void txtTimKiemNVMoiKeyReleased(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_txtTimKiemNVMoiKeyReleased
         if (!txtTimKiemNVMoi.getText().isEmpty()) {
             btnXoaNV.setEnabled(false);
+            if (Selected_TKCV != 0) {
+                Selected_TKCV = 0;
+                cboChucVuTimKiem.setSelectedIndex(0);
+            }
         }
+
         fillToTable_NVMoi(repo_nv.search(txtTimKiemNVMoi.getText(), 0));
         int kt = 0;
         if (kt == tblNhanVienMoi.getRowCount()) {
@@ -1124,6 +1285,39 @@ public class NhanVien_form extends javax.swing.JInternalFrame {
     private void txtTaiKhoanActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_txtTaiKhoanActionPerformed
         // TODO add your handling code here:
     }//GEN-LAST:event_txtTaiKhoanActionPerformed
+
+    private void cboChucVuTimKiemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cboChucVuTimKiemActionPerformed
+        // TODO add your handling code here:
+        txtTimKiemNVMoi.setText("");
+        Selected_TKCV = (Integer) cboChucVuTimKiem.getSelectedIndex();
+
+        if (Selected_TKCV == 0) {
+
+            fillToTable_NVMoi(repo_nv.getAll_NV_Moi());
+
+            btntraitrai.setEnabled(true);
+            btnphai_phai.setEnabled(true);
+            btnPhai.setEnabled(true);
+            btnTrai.setEnabled(true);
+            return;
+        } else if (Selected_TKCV == 1) {
+            // nhân viên 
+
+            fillToTable_NVMoi(repo_nv.getALL_ChucVu(1));
+            btntraitrai.setEnabled(false);
+            btnphai_phai.setEnabled(false);
+            btnPhai.setEnabled(false);
+            btnTrai.setEnabled(false);
+        } else if (Selected_TKCV == 2) {
+            // trưởng phòng
+
+            fillToTable_NVMoi(repo_nv.getALL_ChucVu(2));
+            btntraitrai.setEnabled(false);
+            btnphai_phai.setEnabled(false);
+            btnPhai.setEnabled(false);
+            btnTrai.setEnabled(false);
+        }
+    }//GEN-LAST:event_cboChucVuTimKiemActionPerformed
     public static void main(String[] args) {
         java.awt.EventQueue.invokeLater(new Runnable() {
             public void run() {
@@ -1157,6 +1351,7 @@ public class NhanVien_form extends javax.swing.JInternalFrame {
     private javax.swing.ButtonGroup buttonGroup1;
     private javax.swing.ButtonGroup buttonGroup2;
     private javax.swing.JComboBox<String> cboChucVu;
+    private javax.swing.JComboBox<String> cboChucVuTimKiem;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel10;
     private javax.swing.JLabel jLabel11;
@@ -1175,6 +1370,7 @@ public class NhanVien_form extends javax.swing.JInternalFrame {
     private javax.swing.JLabel jLabel23;
     private javax.swing.JLabel jLabel24;
     private javax.swing.JLabel jLabel25;
+    private javax.swing.JLabel jLabel26;
     private javax.swing.JLabel jLabel3;
     private javax.swing.JLabel jLabel4;
     private javax.swing.JLabel jLabel5;

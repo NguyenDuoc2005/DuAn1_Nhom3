@@ -152,7 +152,7 @@ public class BanHang_form extends javax.swing.JInternalFrame {
             }
         });
         tblHoaDon.setToolTipText("");
-        tblHoaDon.setRowHeight(25);
+        tblHoaDon.setRowHeight(30);
         tblHoaDon.setSelectionForeground(new java.awt.Color(255, 255, 255));
         tblHoaDon.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseClicked(java.awt.event.MouseEvent evt) {
@@ -185,7 +185,7 @@ public class BanHang_form extends javax.swing.JInternalFrame {
                         .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addComponent(txtTimHoaDon, javax.swing.GroupLayout.PREFERRED_SIZE, 423, javax.swing.GroupLayout.PREFERRED_SIZE)
                             .addComponent(jLabel2))
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 299, Short.MAX_VALUE)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                         .addComponent(btnTaoHD)
                         .addGap(35, 35, 35))))
         );
@@ -331,6 +331,13 @@ public class BanHang_form extends javax.swing.JInternalFrame {
 
         lblTongTien.setFont(new java.awt.Font("Segoe UI", 2, 14)); // NOI18N
         lblTongTien.setText("0");
+
+        cboHTThanhToan.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Cả Hai", "Tiền Mặt", "Chuyển Khoản" }));
+        cboHTThanhToan.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                cboHTThanhToanActionPerformed(evt);
+            }
+        });
 
         txtTienThua.setEditable(false);
 
@@ -494,7 +501,7 @@ public class BanHang_form extends javax.swing.JInternalFrame {
                 return canEdit [columnIndex];
             }
         });
-        tblGioHang.setRowHeight(25);
+        tblGioHang.setRowHeight(30);
         tblGioHang.setSelectionForeground(new java.awt.Color(255, 255, 255));
         jScrollPane3.setViewportView(tblGioHang);
 
@@ -545,7 +552,7 @@ public class BanHang_form extends javax.swing.JInternalFrame {
             }
         });
         tblSanPham.setGridColor(new java.awt.Color(255, 255, 255));
-        tblSanPham.setRowHeight(25);
+        tblSanPham.setRowHeight(30);
         tblSanPham.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseClicked(java.awt.event.MouseEvent evt) {
                 tblSanPhamMouseClicked(evt);
@@ -565,7 +572,7 @@ public class BanHang_form extends javax.swing.JInternalFrame {
                         .addGap(0, 0, Short.MAX_VALUE))
                     .addGroup(jPanel5Layout.createSequentialGroup()
                         .addGroup(jPanel5Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(jScrollPane2, javax.swing.GroupLayout.DEFAULT_SIZE, 823, Short.MAX_VALUE)
+                            .addComponent(jScrollPane2)
                             .addGroup(jPanel5Layout.createSequentialGroup()
                                 .addComponent(txtTimSanPham, javax.swing.GroupLayout.PREFERRED_SIZE, 433, javax.swing.GroupLayout.PREFERRED_SIZE)
                                 .addGap(0, 0, Short.MAX_VALUE)))
@@ -587,12 +594,11 @@ public class BanHang_form extends javax.swing.JInternalFrame {
         jPanel1Layout.setHorizontalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel1Layout.createSequentialGroup()
+                .addGap(6, 6, 6)
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(jPanel2, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(jPanel5, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addGroup(jPanel1Layout.createSequentialGroup()
-                        .addGap(6, 6, 6)
-                        .addComponent(jPanel4, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)))
+                    .addComponent(jPanel2, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(jPanel4, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(jPanel5, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jPanel3, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .addContainerGap())
@@ -669,6 +675,13 @@ public class BanHang_form extends javax.swing.JInternalFrame {
         imei.fillToTable(repo_sp.chonImei(maSP));
 
     }//GEN-LAST:event_tblSanPhamMouseClicked
+
+    private void cboHTThanhToanActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cboHTThanhToanActionPerformed
+        // TODO add your handling code here:
+        Integer Selected_HTTT = (Integer) cboHTThanhToan.getSelectedIndex(); 
+        System.out.println(Selected_HTTT);
+        
+    }//GEN-LAST:event_cboHTThanhToanActionPerformed
     public static void main(String[] args) {
         
         java.awt.EventQueue.invokeLater(new Runnable() {

@@ -18,7 +18,7 @@ public class NhanVien_Repository {
                                                                  dbo.NhanVien.SDT, dbo.NhanVien.Hinh_Anh, dbo.NhanVien.Email, dbo.NhanVien.Trang_Thai, dbo.NhanVien.ID_Chuc_Vu, dbo.ChucVu.ID_Chuc_Vu AS Expr1, dbo.ChucVu.Chuc_Vu
                                            FROM         dbo.NhanVien INNER JOIN
                                                                  dbo.ChucVu ON dbo.NhanVien.ID_Chuc_Vu = dbo.ChucVu.ID_Chuc_Vu
-                     where NhanVien.Trang_Thai = 0
+                     where NhanVien.Trang_Thai = 0  order by ID_Nhan_Vien desc
                      """;
         try (Connection con = DBConnect.getConnection();
                 PreparedStatement ps = con.prepareStatement(sql)) {
@@ -108,6 +108,7 @@ public class NhanVien_Repository {
                                    OR NhanVien.SDT LIKE ?
                                    OR NhanVien.Email LIKE ?
                  	                		)
+                   order by ID_Nhan_Vien desc
                  """;
         }
         ArrayList<NhanVien_Response> lists = new ArrayList<>();
@@ -159,10 +160,14 @@ public class NhanVien_Repository {
         ArrayList<NhanVien_Response> listNV = new ArrayList<>();
         listNV.clear();
         String sql = """
-                    SELECT    dbo.NhanVien.ID_Nhan_Vien, dbo.NhanVien.Ma_NV, dbo.NhanVien.Tai_Khoan, dbo.NhanVien.Mat_Khau, dbo.NhanVien.Ho_Ten, dbo.NhanVien.Gioi_Tinh, dbo.NhanVien.Ngay_Sinh, dbo.NhanVien.Dia_Chi, 
-                                                                 dbo.NhanVien.SDT, dbo.NhanVien.Hinh_Anh, dbo.NhanVien.Email, dbo.NhanVien.Trang_Thai, dbo.NhanVien.ID_Chuc_Vu, dbo.ChucVu.ID_Chuc_Vu AS Expr1, dbo.ChucVu.Chuc_Vu
-                                           FROM         dbo.NhanVien INNER JOIN
-                                                                 dbo.ChucVu ON dbo.NhanVien.ID_Chuc_Vu = dbo.ChucVu.ID_Chuc_Vu
+                    SELECT    dbo.NhanVien.ID_Nhan_Vien, dbo.NhanVien.Ma_NV, 
+                     dbo.NhanVien.Tai_Khoan, dbo.NhanVien.Mat_Khau, dbo.NhanVien.Ho_Ten,
+                     dbo.NhanVien.Gioi_Tinh, dbo.NhanVien.Ngay_Sinh, dbo.NhanVien.Dia_Chi, 
+                                                                 dbo.NhanVien.SDT, dbo.NhanVien.Hinh_Anh,
+                     dbo.NhanVien.Email, dbo.NhanVien.Trang_Thai, dbo.NhanVien.ID_Chuc_Vu, 
+                     dbo.ChucVu.ID_Chuc_Vu AS Expr1, dbo.ChucVu.Chuc_Vu
+                     FROM         dbo.NhanVien INNER JOIN
+                      dbo.ChucVu ON dbo.NhanVien.ID_Chuc_Vu = dbo.ChucVu.ID_Chuc_Vu
                      
                      """;
         try (Connection con = DBConnect.getConnection();
@@ -280,6 +285,52 @@ public class NhanVien_Repository {
 
         }
         return check > 0;
+    }
+    public ArrayList<NhanVien_Response> getALL_ChucVu(int idChucVu) {
+        ArrayList<NhanVien_Response> listNV = new ArrayList<>();
+        listNV.clear();
+        String sql = """
+                    SELECT    dbo.NhanVien.ID_Nhan_Vien, dbo.NhanVien.Ma_NV, dbo.NhanVien.Tai_Khoan, dbo.NhanVien.Mat_Khau, dbo.NhanVien.Ho_Ten, dbo.NhanVien.Gioi_Tinh, dbo.NhanVien.Ngay_Sinh, dbo.NhanVien.Dia_Chi, 
+                                                                                     dbo.NhanVien.SDT, dbo.NhanVien.Hinh_Anh, dbo.NhanVien.Email, dbo.NhanVien.Trang_Thai, dbo.NhanVien.ID_Chuc_Vu, dbo.ChucVu.ID_Chuc_Vu AS Expr1, dbo.ChucVu.Chuc_Vu
+                                                               FROM         dbo.NhanVien INNER JOIN
+                                                                                     dbo.ChucVu ON dbo.NhanVien.ID_Chuc_Vu = dbo.ChucVu.ID_Chuc_Vu
+                                         where NhanVien.Trang_Thai = 0  and dbo.ChucVu.ID_Chuc_Vu = ?
+                    					 
+                    					 order by ID_Nhan_Vien desc
+                     """;
+        try (Connection con = DBConnect.getConnection();
+                PreparedStatement ps = con.prepareStatement(sql)) {
+            ps.setInt(1,idChucVu);
+            ResultSet rs = ps.executeQuery();
+            while (rs.next()) {
+                NhanVien_Response nv = NhanVien_Response.builder()
+                        .id_NhanVien(rs.getInt(1))
+                        .maNhanVien(rs.getString(2))
+                        .taiKhoan(rs.getString(3))
+                        .matKhau(rs.getString(4))
+                        .hoTen(rs.getString(5))
+                        .gioiTinh(rs.getBoolean(6))
+                        .ngaySinh(rs.getDate(7))
+                        .diaChi(rs.getString(8))
+                        .SDT(rs.getString(9))
+                        .hinhAnh(rs.getString(10))
+                        .email(rs.getString(11))
+                        .trangThai(rs.getInt(12))
+                        .id_ChucVu_NV(rs.getInt(13))
+                        .id_ChucVu(rs.getInt(14))
+                        .chucVu(rs.getString(15))
+                        .build();
+                        listNV.add(nv);
+            }
+            return listNV;
+        } catch (Exception e) {
+            return null;
+        }
+    }
+    
+    public static void main(String[] args) {
+        NhanVien_Repository nv = new NhanVien_Repository(); 
+        System.out.println(nv.getALL_ChucVu(2).get(0));
     }
     
 }

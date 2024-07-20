@@ -1,7 +1,3 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/GUIForms/JFrame.java to edit this template
- */
 package view;
 
 import entity.ToanCuc_NV;
@@ -490,7 +486,6 @@ public class Menu_View extends javax.swing.JFrame {
 
     private void sanpham_menuMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_sanpham_menuMouseClicked
         // TODO add your handling code here:
-        sanPham_form = new SanPham_form(); 
         main.removeAll();
         main.add(sanPham_form).setVisible(true);
         
